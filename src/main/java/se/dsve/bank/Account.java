@@ -8,57 +8,87 @@
 //getAccountNr()
 //Skapa nödvändiga tester för att försäkra dig om att kontot inte får felaktiga inmatningar och inte övertrasseras
 
-package bank;
+package se.dsve.bank;
 
 public class Account {
     private double balance;
-    private int accountNr;
+    private final int accountNr;
 
     final private double maxTransaction = 10000.0;
     final private double minTransaction = 1.0;
 
     public Account(double initialCash, int accountNr) {
-        if (initialCash < 0) {
-            throw new IllegalArgumentException("You can't deposit a negative amount");
+        if (initialCashIsNegative(initialCash)) {
+            throw new IllegalInitialCashException("You can't deposit a negative amount");
         }
-        if (accountNr < 0) {
-            throw new IllegalArgumentException("You can't have a negative account number");
+        if (accountNrIsLessThanOne(accountNr)) {
+            throw new IllegalAccountNrException("You can't have a negative account number");
         }
         this.balance = initialCash;
         this.accountNr = accountNr;
     }
 
+    protected boolean initialCashIsNegative(double initialCash) {
+        return initialCash < 0;
+    }
+
+    protected boolean accountNrIsLessThanOne(int accountNr) {
+        return accountNr < 1;
+    }
+
     public void deposit(double cash) {
-        if (cash < minTransaction){
-            throw new IllegalArgumentException("You can't deposit less than " + minTransaction);
+        if (cashIsLessThanMinTransaction(cash)) {
+            throw new IllegalCashIsLessThanMinTransactionException("You can't deposit less than " + minTransaction);
         }
-        if (cash > maxTransaction) {
-            throw new IllegalArgumentException("You can't deposit more than " + maxTransaction);
-        }
-        if (Double.isNaN(cash)){
-            throw new IllegalArgumentException("Invalid deposit amount");
+        if (cashIsMoreThanMaxTransaction(cash)) {
+            throw new IllegalCashIsMoreThanMaxTransactionException("You can't deposit more than " + maxTransaction);
         }
         balance += cash;
-        System.out.println("You deposited " + cash + " to account " + accountNr);
-        System.out.println("Your new balance is " + balance);
+//        System.out.println("You deposited " + cash + " to account " + accountNr);
+        printToConsole(transactionAction(cash, new String[]{"deposited", "to"}, accountNr));
+        newBalanceIs();
+    }
+
+    protected void printToConsole(String message) {
+        System.out.println(message);
+    }
+
+    protected boolean cashIsLessThanMinTransaction(double cash) {
+        return cash < minTransaction;
+    }
+
+    protected boolean cashIsMoreThanMaxTransaction(double cash) {
+        return cash > maxTransaction;
+    }
+
+    protected String transactionAction(double cash, String[] action, int accountNr) {
+        return "You " + action[0] + " " + cash + " " + action[1] + " account " + accountNr;
+    }
+
+    private void newBalanceIs() {
+        printToConsole("Your new balance is " + getBalance());
     }
 
     public void withdraw(double cash) {
-        if (cash < minTransaction){
-            throw new IllegalArgumentException("You can't withdraw less than " + minTransaction);
+        if (cashIsLessThanMinTransaction(cash)) {
+            throw new IllegalCashIsLessThanMinTransactionException("You can't withdraw less than " + minTransaction);
         }
-        if (cash > maxTransaction) {
-            throw new IllegalArgumentException("You can't withdraw more than " + maxTransaction);
+        if (cashIsMoreThanMaxTransaction(cash)) {
+            throw new IllegalCashIsMoreThanMaxTransactionException("You can't withdraw more than " + maxTransaction);
         }
-        if (Double.isNaN(cash)){
-            throw new IllegalArgumentException("Invalid withdraw amount");
-        }
-        if (cash > balance){
-            throw new IllegalArgumentException("You can't withdraw more than you have");
+        if (cashIsMoreThanBalance(cash)) {
+            throw new IllegalCashIsMoreThanBalanceException("You can't withdraw more than you have");
         }
         balance -= cash;
-        System.out.println("You withdrew " + cash + " from account " + accountNr);
-        System.out.println("Your new balance is " + balance);
+//        System.out.println("You withdrew " + cash + " from account " + accountNr);
+        printToConsole(transactionAction(cash, new String[]{"withdrew", "from"}, accountNr));
+        newBalanceIs();
+    }
+
+
+
+    protected boolean cashIsMoreThanBalance(double cash) {
+        return cash > balance;
     }
 
     public double getBalance() {

@@ -1,7 +1,7 @@
 package se.dsve.bank;
 
-public class IllegalashIsMoreThanMaxTransactionException extends RuntimeException {
-    public IllegalashIsMoreThanMaxTransactionException(String message) {
+public class IllegalCashIsMoreThanMaxTransactionException extends RuntimeException {
+    public IllegalCashIsMoreThanMaxTransactionException(String message) {
         super(message);
     }
 }
